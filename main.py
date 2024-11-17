@@ -1,4 +1,4 @@
-from server.database_webscraping import WebscrapingDatabase
+import pharmacy.sus.export as sus
 
-webscraping_database = WebscrapingDatabase()
-webscraping_database.create_teste_table()
+# sus.delete_tables()
+# sus.export_sus_data()

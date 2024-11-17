@@ -1,0 +1,36 @@
+from server.connection import ServerConnection
+
+
+class PharmacyDatabase:
+    def __init__(self):
+        self.server = ServerConnection('Pharmacy')
+
+    def insert_reference_rows(self, values):
+        if not self.server.check_table_exists("REFERENCE_MEDICINE"):
+            self.server.create_table("REFERENCE_MEDICINE", "id INT IDENTITY(1,1) PRIMARY KEY, name NVARCHAR(255)")
+
+        for value in values:
+            self.server.insert("REFERENCE_MEDICINE", "name", f"'{value}'")
+
+    def delete_reference_table(self):
+        if self.server.check_table_exists("REFERENCE_MEDICINE"):
+            self.server.drop_table("REFERENCE_MEDICINE")
+
+    def insert_record_rows(self, values):
+        if not self.server.check_table_exists("RECORD_MEDICINE"):
+            columns = """
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                reference NVARCHAR(255),
+                name NVARCHAR(255),
+                brand NVARCHAR(100),
+                ingredient NVARCHAR(255),
+                price DECIMAL(10, 2)
+            """
+            self.server.create_table("RECORD_MEDICINE", columns)
+
+        for value in values:
+            self.server.insert("RECORD_MEDICINE", "reference, name, brand, ingredient, price", value)
+
+    def delete_record_table(self):
+        if self.server.check_table_exists("RECORD_MEDICINE"):
+            self.server.drop_table("RECORD_MEDICINE")

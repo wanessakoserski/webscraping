@@ -1,0 +1,76 @@
+# Arquivos de ambiente virtual
+venv/
+.env/
+.venv/
+ENV/
+env.bak/
+env/
+
+# Configurações do editor
+.vscode/
+.idea/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Compilação de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos de log
+*.log
+
+# Configurações temporárias
+*.env
+*.ini
+*.cfg
+*.local
+
+# Saída de compilação
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Arquivos de distribuição
+.Python
+pip-log.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+*.cover
+*.py,cover
+
+# Testes
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+test_output/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Outros arquivos específicos do Python
+*.pyo
+*.pyd
+*.whl
+
+# Arquivos do PyInstaller
+# PyInstaller inclui arquivos temporários e de build
+*.manifest
+*.spec
+
+# Arquivos do Pylint
+pylint.log
