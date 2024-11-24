@@ -16,6 +16,15 @@ class PharmacyDatabase:
         if self.server.check_table_exists("REFERENCE_MEDICINE"):
             self.server.drop_table("REFERENCE_MEDICINE")
 
+    def select_referece_table(self):
+        results = self.server.select("REFERENCE_MEDICINE")
+
+        medicines = []
+        for result in results:
+            medicines.append({'id': result[0], 'name': result[1]})
+
+        return medicines
+
     def insert_record_rows(self, values):
         if not self.server.check_table_exists("RECORD_MEDICINE"):
             columns = """
