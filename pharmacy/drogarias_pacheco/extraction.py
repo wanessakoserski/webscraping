@@ -15,14 +15,13 @@ class DrograriaSaoPauloScrapper:
         self.db = PharmacyDatabase()
         self.medicines = self.db.select_referece_table()
         # print(self.medicines)
-        self.domain = 'https://www.drogariasaopaulo.com.br'
+        self.domain = 'https://www.drogariaspacheco.com.br'
 
         self.service = Service()
         self.options = webdriver.ChromeOptions()  
 
     
     def extract(self):
-        # self.open_web('https://www.drogariasaopaulo.com.br/pesquisa?q=adalimumabe', 'a')
         for medicine in self.medicines:
             link = f"{self.domain}/pesquisa?q={medicine['name']}"
             self.open_web(link, medicine['name'])
@@ -50,7 +49,7 @@ class DrograriaSaoPauloScrapper:
 
         except Exception as ex:
             print(ex)
-            self.db.insert_record_rows([f"'Drogaria São Paulo', '{medicine}', 'None', 'None', 'None', CAST('0.00' AS DECIMAL(10, 2))"])
+            # self.db.insert_record_rows([f"'Drogarias Pacheco', '{medicine}', 'None', 'None', 'None', CAST('0.00' AS DECIMAL(10, 2))"])
             driver.quit()
 
     
@@ -68,13 +67,14 @@ class DrograriaSaoPauloScrapper:
             ingredient = driver.find_element(By.CLASS_NAME, 'rnk-comp-especificacoes').find_element(By.TAG_NAME, 'a').text
             ingredient = ingredient.replace('Com', '').strip()
 
-            # print('Drogaria São Paulo', medicine, name, brand, ingredient, price)
-            self.db.insert_record_rows([f"'Drogaria São Paulo', '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
+            # print(medicine, name, brand, ingredient, price)
+            self.db.insert_record_rows([f"'Drogarias Pacheco, '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
             
             driver.quit()
 
         except Exception as ex:
             print(ex)
+            driver.quit()
 
 
 

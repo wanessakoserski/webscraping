@@ -15,16 +15,15 @@ class DrograriaSaoPauloScrapper:
         self.db = PharmacyDatabase()
         self.medicines = self.db.select_referece_table()
         # print(self.medicines)
-        self.domain = 'https://www.drogariasaopaulo.com.br'
+        self.domain = 'https://www.araujo.com.br'
 
         self.service = Service()
         self.options = webdriver.ChromeOptions()  
 
     
     def extract(self):
-        # self.open_web('https://www.drogariasaopaulo.com.br/pesquisa?q=adalimumabe', 'a')
         for medicine in self.medicines:
-            link = f"{self.domain}/pesquisa?q={medicine['name']}"
+            link = f"{self.domain}/busca?q={medicine['name']}&lang=pt_BR"
             self.open_web(link, medicine['name'])
 
         print("=================! FINISHED !=================")
@@ -35,22 +34,21 @@ class DrograriaSaoPauloScrapper:
             driver = webdriver.Chrome(service=self.service, options=self.options)
 
             driver.get(url)
-            WebDriverWait(driver, 30).until( 
-                EC.presence_of_element_located((By.CLASS_NAME, 'chaordic-search-list'))
+            WebDriverWait(driver, 20).until( 
+                EC.presence_of_element_located((By.CLASS_NAME, "productTile__link"))
             )
-            showcase = driver.find_element(By.CLASS_NAME, "chaordic-search-list")
-            elements = showcase.find_elements(By.CLASS_NAME, "collection-image-link")
+            elements = driver.find_elements(By.CLASS_NAME, "productTile__link")
+            # elements = showcase.find_elements(By.TAG_NAME, "a")
             hrefs = [element.get_attribute('href') for element in elements] 
-            # print(hrefs)
+            print(hrefs)
 
             driver.quit()
 
-            # self.storage_info(hrefs[0], medicine)
             [self.storage_info(href, medicine) for href in hrefs]       
 
         except Exception as ex:
             print(ex)
-            self.db.insert_record_rows([f"'Drogaria São Paulo', '{medicine}', 'None', 'None', 'None', CAST('0.00' AS DECIMAL(10, 2))"])
+            self.db.insert_record_rows([f"'Drogaria Araujo', '{medicine}', 'None', 'None', 'None', CAST('0.00' AS DECIMAL(10, 2))"])
             driver.quit()
 
     
@@ -59,22 +57,28 @@ class DrograriaSaoPauloScrapper:
             driver = webdriver.Chrome(service=self.service, options=self.options)
             driver.get(url)
             WebDriverWait(driver, 30).until( 
-                EC.presence_of_element_located((By.CLASS_NAME, 'productName'))
+                EC.presence_of_element_located((By.CLASS_NAME, 'product-info-name'))
             )
-            name = driver.find_element(By.CLASS_NAME, 'productName').text
-            price = driver.find_element(By.CLASS_NAME, 'skuBestPrice').text
-            price = price.replace('R$', '').replace('.', '').replace(',', '.').strip()
-            brand = driver.find_element(By.CLASS_NAME, 'rnk-nome-marca').text
-            ingredient = driver.find_element(By.CLASS_NAME, 'rnk-comp-especificacoes').find_element(By.TAG_NAME, 'a').text
-            ingredient = ingredient.replace('Com', '').strip()
-
-            # print('Drogaria São Paulo', medicine, name, brand, ingredient, price)
-            self.db.insert_record_rows([f"'Drogaria São Paulo', '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
             
-            driver.quit()
+            name = driver.find_element(By.CLASS_NAME, 'product-info-name').find_element(By.TAG_NAME, "h1").text
+            # print(name)
+            price = driver.find_element(By.CLASS_NAME, 'productPrice__price').text
+            # print(price)
+            price = price.replace('De', '').replace('Por', '').replace('R$', '').replace('.', '').replace(',', '.').strip()
+            # print(price)
+            brand = driver.find_element(By.CLASS_NAME, 'brand-info--name').text
+            # print(brand)
+            ingredient = driver.find_element(By.CLASS_NAME, 'product__activePrinciple').text
+            # print(ingredient)
 
+            # print(medicine, name, brand, ingredient, price)
+            self.db.insert_record_rows([f"'Drogaria Araujo', '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
+
+            driver.quit()
+            
         except Exception as ex:
             print(ex)
+            driver.quit()
 
 
 

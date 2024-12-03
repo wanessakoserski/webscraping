@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -15,16 +16,15 @@ class DrograriaSaoPauloScrapper:
         self.db = PharmacyDatabase()
         self.medicines = self.db.select_referece_table()
         # print(self.medicines)
-        self.domain = 'https://www.drogariasaopaulo.com.br'
+        self.domain = 'https://www.drogasil.com.br'
 
         self.service = Service()
         self.options = webdriver.ChromeOptions()  
 
     
     def extract(self):
-        # self.open_web('https://www.drogariasaopaulo.com.br/pesquisa?q=adalimumabe', 'a')
         for medicine in self.medicines:
-            link = f"{self.domain}/pesquisa?q={medicine['name']}"
+            link = f"{self.domain}/search?w={medicine['name']}"
             self.open_web(link, medicine['name'])
 
         print("=================! FINISHED !=================")
@@ -35,22 +35,21 @@ class DrograriaSaoPauloScrapper:
             driver = webdriver.Chrome(service=self.service, options=self.options)
 
             driver.get(url)
-            WebDriverWait(driver, 30).until( 
-                EC.presence_of_element_located((By.CLASS_NAME, 'chaordic-search-list'))
+            WebDriverWait(driver, 20).until( 
+                EC.presence_of_element_located((By.TAG_NAME, "article"))
             )
-            showcase = driver.find_element(By.CLASS_NAME, "chaordic-search-list")
-            elements = showcase.find_elements(By.CLASS_NAME, "collection-image-link")
+            showcase = driver.find_element(By.TAG_NAME, "article")
+            elements = showcase.find_elements(By.TAG_NAME, "a")
             hrefs = [element.get_attribute('href') for element in elements] 
             # print(hrefs)
 
             driver.quit()
 
-            # self.storage_info(hrefs[0], medicine)
             [self.storage_info(href, medicine) for href in hrefs]       
 
         except Exception as ex:
             print(ex)
-            self.db.insert_record_rows([f"'Drogaria São Paulo', '{medicine}', 'None', 'None', 'None', CAST('0.00' AS DECIMAL(10, 2))"])
+            self.db.insert_record_rows([f"'Drogasil', '{medicine}', 'None', 'None', 'None', CAST('0.00' AS DECIMAL(10, 2))"])
             driver.quit()
 
     
@@ -59,22 +58,30 @@ class DrograriaSaoPauloScrapper:
             driver = webdriver.Chrome(service=self.service, options=self.options)
             driver.get(url)
             WebDriverWait(driver, 30).until( 
-                EC.presence_of_element_located((By.CLASS_NAME, 'productName'))
+                EC.presence_of_element_located((By.CLASS_NAME, 'product-name'))
             )
-            name = driver.find_element(By.CLASS_NAME, 'productName').text
-            price = driver.find_element(By.CLASS_NAME, 'skuBestPrice').text
-            price = price.replace('R$', '').replace('.', '').replace(',', '.').strip()
-            brand = driver.find_element(By.CLASS_NAME, 'rnk-nome-marca').text
-            ingredient = driver.find_element(By.CLASS_NAME, 'rnk-comp-especificacoes').find_element(By.TAG_NAME, 'a').text
-            ingredient = ingredient.replace('Com', '').strip()
-
-            # print('Drogaria São Paulo', medicine, name, brand, ingredient, price)
-            self.db.insert_record_rows([f"'Drogaria São Paulo', '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
             
-            driver.quit()
+            # name = driver.find_element(By.CLASS_NAME, 'product-name').find_element(By.TAG_NAME, "h1").text
+            # print(name)
+            script = driver.find_element(By.XPATH, "//script[@type='application/ld+json']")
+            json_content = script.get_attribute('innerHTML')
+            product_data = json.loads(json_content)
+            name = product_data["name"]
+            price = product_data["offers"]["price"]
+            # print(price)
+            brand = driver.find_element(By.CLASS_NAME, 'brand').text
+            # print(brand)
+            ingredient = driver.find_element(By.CLASS_NAME, 'activePrinciple').text
+            # print(ingredient)
 
+            # print(medicine, name, brand, ingredient, price)
+            self.db.insert_record_rows([f"'Drogasil', '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
+
+            driver.quit()
+            
         except Exception as ex:
             print(ex)
+            driver.quit()
 
 
 

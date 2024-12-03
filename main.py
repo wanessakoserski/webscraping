@@ -6,4 +6,7 @@ import pharmacy.sus.export as sus
 from server.database_pharmacy import PharmacyDatabase
 
 db = PharmacyDatabase()
-db.select_referece_table()
+
+# db.select_referece_table()
+
+db.delete_record_table()
