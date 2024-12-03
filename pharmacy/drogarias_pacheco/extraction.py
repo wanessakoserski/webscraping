@@ -63,12 +63,13 @@ class DrograriaSaoPauloScrapper:
             name = driver.find_element(By.CLASS_NAME, 'productName').text
             price = driver.find_element(By.CLASS_NAME, 'skuBestPrice').text
             price = price.replace('R$', '').replace('.', '').replace(',', '.').strip()
+            # print(price)
             brand = driver.find_element(By.CLASS_NAME, 'rnk-nome-marca').text
             ingredient = driver.find_element(By.CLASS_NAME, 'rnk-comp-especificacoes').find_element(By.TAG_NAME, 'a').text
             ingredient = ingredient.replace('Com', '').strip()
 
             # print(medicine, name, brand, ingredient, price)
-            self.db.insert_record_rows([f"'Drogarias Pacheco, '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
+            self.db.insert_record_rows([f"'Drogarias Pacheco', '{medicine}', '{name}', '{brand}', '{ingredient}', CAST('{price}' AS DECIMAL(10, 2))"])
             
             driver.quit()
 
